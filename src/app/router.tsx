@@ -6,14 +6,16 @@ import {
 } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import ProtectedRoute from "../components/common/ProtectedRoute";
+import AdminLayout from "../components/layout/AdminLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 
  
+
 export default function Router() {
   return (
     <Routes>
       {/* =========================
-          Public Routes
+          Public
       ========================== */}
 
       <Route
@@ -22,14 +24,27 @@ export default function Router() {
       />
 
       {/* =========================
-          Protected Routes
+          Protected Admin
       ========================== */}
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Dashboard />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/admin/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <AdminLayout>
+              <Dashboard />
+            </AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -47,10 +62,6 @@ export default function Router() {
           />
         }
       />
-
-      {/* =========================
-          404
-      ========================== */}
 
       <Route
         path="*"
