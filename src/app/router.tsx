@@ -1,26 +1,43 @@
  
-import { Navigate, Route, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 import Login from "../pages/auth/Login";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 import Dashboard from "../pages/dashboard/Dashboard";
 
  
-
 export default function Router() {
   return (
     <Routes>
-      {/* Public */}
+      {/* =========================
+          Public Routes
+      ========================== */}
+
       <Route
         path="/admin/login"
         element={<Login />}
       />
 
-      {/* Protected */}
+      {/* =========================
+          Protected Routes
+      ========================== */}
+
       <Route
         path="/admin/dashboard"
-        element={<Dashboard />}
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
       />
 
-      {/* Default */}
+      {/* =========================
+          Default
+      ========================== */}
+
       <Route
         path="/"
         element={
@@ -31,7 +48,10 @@ export default function Router() {
         }
       />
 
-      {/* 404 */}
+      {/* =========================
+          404
+      ========================== */}
+
       <Route
         path="*"
         element={
