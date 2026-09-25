@@ -157,14 +157,14 @@ const Dashboard = () => {
             disabled:opacity-50
             dark:border-white/10
             dark:bg-white/[0.05]
-            dark:text-white
+         
             dark:hover:border-white/20
             dark:hover:bg-white/[0.08]
           "
         >
           <RefreshCw
             size={14}
-            className={isFetching ? "animate-spin" : ""}
+            className={isFetching ? "animate-spin" : ""} 
           />
 
           Refresh

@@ -10,6 +10,8 @@ import AdminLayout from "../components/layout/AdminLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Projects from "../pages/projects/Projects";
 import CreateProject from "../pages/projects/CreateProject";
+import EditProject from "../pages/projects/EditProject";
+import Categories from "../pages/categories/Categories";
 
  
 
@@ -55,6 +57,9 @@ export default function Router() {
     <Route path="/admin/projects" element={ <ProtectedRoute> <AdminLayout> <Projects /> </AdminLayout> </ProtectedRoute> } />
 
     <Route path="/admin/projects/new" element={ <ProtectedRoute> <AdminLayout> <CreateProject /> </AdminLayout> </ProtectedRoute> } />
+
+    <Route path="/admin/projects/edit/:id" element={ <ProtectedRoute> <AdminLayout> <EditProject /> </AdminLayout> </ProtectedRoute> } />
+    <Route path="/admin/categories" element={ <ProtectedRoute> <AdminLayout> <Categories /> </AdminLayout> </ProtectedRoute> } />
 
       {/* =========================
           Default

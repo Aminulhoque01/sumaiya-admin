@@ -47,7 +47,7 @@ export default function Projects() {
           project.shortDescription || ""
         } ${
           typeof project.category === "object"
-            ? project.category.name
+            ? project?.category?.name
             : ""
         }`
           .toLowerCase();
