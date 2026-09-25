@@ -9,6 +9,7 @@ import ProtectedRoute from "../components/common/ProtectedRoute";
 import AdminLayout from "../components/layout/AdminLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Projects from "../pages/projects/Projects";
+import CreateProject from "../pages/projects/CreateProject";
 
  
 
@@ -52,6 +53,8 @@ export default function Router() {
 
       {/* ========================= Projects ========================= */} 
     <Route path="/admin/projects" element={ <ProtectedRoute> <AdminLayout> <Projects /> </AdminLayout> </ProtectedRoute> } />
+
+    <Route path="/admin/projects/new" element={ <ProtectedRoute> <AdminLayout> <CreateProject /> </AdminLayout> </ProtectedRoute> } />
 
       {/* =========================
           Default
