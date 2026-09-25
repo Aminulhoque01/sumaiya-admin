@@ -12,6 +12,7 @@ import Projects from "../pages/projects/Projects";
 import CreateProject from "../pages/projects/CreateProject";
 import EditProject from "../pages/projects/EditProject";
 import Categories from "../pages/categories/Categories";
+import Services from "../pages/services/Services";
 
  
 
@@ -60,6 +61,16 @@ export default function Router() {
 
     <Route path="/admin/projects/edit/:id" element={ <ProtectedRoute> <AdminLayout> <EditProject /> </AdminLayout> </ProtectedRoute> } />
     <Route path="/admin/categories" element={ <ProtectedRoute> <AdminLayout> <Categories /> </AdminLayout> </ProtectedRoute> } />
+    <Route
+  path="/admin/services"
+  element={
+    <ProtectedRoute>
+      <AdminLayout>
+        <Services />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
 
       {/* =========================
           Default
