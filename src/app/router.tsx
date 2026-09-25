@@ -13,6 +13,8 @@ import CreateProject from "../pages/projects/CreateProject";
 import EditProject from "../pages/projects/EditProject";
 import Categories from "../pages/categories/Categories";
 import Services from "../pages/services/Services";
+import Skills from "../pages/skills/Skills";
+import Experience from "../pages/experience/Experience";
 
  
 
@@ -67,6 +69,28 @@ export default function Router() {
     <ProtectedRoute>
       <AdminLayout>
         <Services />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/skills"
+  element={
+    <ProtectedRoute>
+      <AdminLayout>
+        <Skills />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/experience"
+  element={
+    <ProtectedRoute>
+      <AdminLayout>
+        <Experience />
       </AdminLayout>
     </ProtectedRoute>
   }
