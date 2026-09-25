@@ -8,6 +8,7 @@ import Login from "../pages/auth/Login";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import AdminLayout from "../components/layout/AdminLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
+import Projects from "../pages/projects/Projects";
 
  
 
@@ -48,6 +49,9 @@ export default function Router() {
           </ProtectedRoute>
         }
       />
+
+      {/* ========================= Projects ========================= */} 
+    <Route path="/admin/projects" element={ <ProtectedRoute> <AdminLayout> <Projects /> </AdminLayout> </ProtectedRoute> } />
 
       {/* =========================
           Default
