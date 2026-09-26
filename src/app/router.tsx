@@ -15,6 +15,9 @@ import Categories from "../pages/categories/Categories";
 import Services from "../pages/services/Services";
 import Skills from "../pages/skills/Skills";
 import Experience from "../pages/experience/Experience";
+import Testimonials from "../pages/testimonials/Testimonials";
+import Profile from "../pages/profile/Profile";
+import Contacts from "../pages/contacts/Contacts";
 
  
 
@@ -86,6 +89,17 @@ export default function Router() {
 />
 
 <Route
+  path="/admin/testimonials"
+  element={
+    <ProtectedRoute>
+      <AdminLayout>
+        <Testimonials />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
   path="/admin/experience"
   element={
     <ProtectedRoute>
@@ -93,6 +107,24 @@ export default function Router() {
         <Experience />
       </AdminLayout>
     </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/profile"
+  element={
+    <AdminLayout>
+      <Profile />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/admin/contacts"
+  element={
+    <AdminLayout>
+      <Contacts />
+    </AdminLayout>
   }
 />
 
