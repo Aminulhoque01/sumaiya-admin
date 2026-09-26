@@ -1,7 +1,11 @@
+ 
 import {
   useMemo,
   useState,
+  type Dispatch,
   type FormEvent,
+  type ReactNode,
+  type SetStateAction,
 } from "react";
 
 import {
@@ -11,6 +15,7 @@ import {
   ChevronDown,
   Code2,
   Edit3,
+  Image,
   Layers3,
   Loader2,
   Plus,
@@ -22,9 +27,18 @@ import {
 } from "lucide-react";
 
 import { toast } from "sonner";
-import { useCreateSkillMutation, useDeleteSkillMutation, useGetAllSkillsQuery, useUpdateSkillMutation, type Skill } from "../../redux/features/skills/skillApi";
 
- 
+import {
+  useCreateSkillMutation,
+  useDeleteSkillMutation,
+  useGetAllSkillsQuery,
+  useUpdateSkillMutation,
+  type Skill,
+} from "../../redux/features/skills/skillApi";
+
+/* =====================================================
+   Types
+===================================================== */
 
 interface SkillFormState {
   name: string;
@@ -37,6 +51,15 @@ interface SkillFormState {
   isActive: boolean;
 }
 
+type StatusFilter =
+  | "all"
+  | "active"
+  | "inactive";
+
+/* =====================================================
+   Initial Form
+===================================================== */
+
 const initialForm: SkillFormState = {
   name: "",
   slug: "",
@@ -48,6 +71,10 @@ const initialForm: SkillFormState = {
   isActive: true,
 };
 
+/* =====================================================
+   Helpers
+===================================================== */
+
 const slugify = (value: string) =>
   value
     .toLowerCase()
@@ -55,9 +82,7 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const getErrorMessage = (
-  error: unknown
-) => {
+const getErrorMessage = (error: unknown) => {
   if (
     typeof error === "object" &&
     error !== null &&
@@ -71,14 +96,15 @@ const getErrorMessage = (
       }
     ).data;
 
-    return (
-      data?.message ||
-      "Something went wrong"
-    );
+    return data?.message || "Something went wrong";
   }
 
   return "Something went wrong";
 };
+
+/* =====================================================
+   Main Skills Page
+===================================================== */
 
 export default function Skills() {
   const {
@@ -98,13 +124,10 @@ export default function Skills() {
   const [deleteSkill, { isLoading: deleting }] =
     useDeleteSkillMutation();
 
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
   const [statusFilter, setStatusFilter] =
-    useState<
-      "all" | "active" | "inactive"
-    >("all");
+    useState<StatusFilter>("all");
 
   const [categoryFilter, setCategoryFilter] =
     useState("all");
@@ -124,6 +147,10 @@ export default function Skills() {
   const [form, setForm] =
     useState<SkillFormState>(initialForm);
 
+  /* =====================================================
+     Categories
+  ===================================================== */
+
   const categories = useMemo(() => {
     return Array.from(
       new Set(
@@ -133,6 +160,10 @@ export default function Skills() {
       )
     ).sort();
   }, [skills]);
+
+  /* =====================================================
+     Filtered Skills
+  ===================================================== */
 
   const filteredSkills = useMemo(() => {
     const query = search
@@ -181,6 +212,10 @@ export default function Skills() {
     categoryFilter,
   ]);
 
+  /* =====================================================
+     Stats
+  ===================================================== */
+
   const stats = useMemo(() => {
     const total = skills.length;
 
@@ -210,15 +245,21 @@ export default function Skills() {
     };
   }, [skills]);
 
+  /* =====================================================
+     Create Modal
+  ===================================================== */
+
   const openCreateModal = () => {
     setEditingSkill(null);
-    setForm(initialForm);
+    setForm({ ...initialForm });
     setModalOpen(true);
   };
 
-  const openEditModal = (
-    skill: Skill
-  ) => {
+  /* =====================================================
+     Edit Modal
+  ===================================================== */
+
+  const openEditModal = (skill: Skill) => {
     setEditingSkill(skill);
 
     setForm({
@@ -237,13 +278,21 @@ export default function Skills() {
     setModalOpen(true);
   };
 
+  /* =====================================================
+     Close Modal
+  ===================================================== */
+
   const closeModal = () => {
     if (creating || updating) return;
 
     setModalOpen(false);
     setEditingSkill(null);
-    setForm(initialForm);
+    setForm({ ...initialForm });
   };
+
+  /* =====================================================
+     Name Change
+  ===================================================== */
 
   const handleNameChange = (
     value: string
@@ -256,6 +305,10 @@ export default function Skills() {
         : slugify(value),
     }));
   };
+
+  /* =====================================================
+     Submit
+  ===================================================== */
 
   const handleSubmit = async (
     event: FormEvent
@@ -331,6 +384,10 @@ export default function Skills() {
     }
   };
 
+  /* =====================================================
+     Delete
+  ===================================================== */
+
   const handleDelete = async () => {
     if (!deletingSkill) return;
 
@@ -351,6 +408,10 @@ export default function Skills() {
       );
     }
   };
+
+  /* =====================================================
+     Toggle Status
+  ===================================================== */
 
   const toggleSkillStatus = async (
     skill: Skill
@@ -375,30 +436,37 @@ export default function Skills() {
     }
   };
 
+  /* =====================================================
+     Render
+  ===================================================== */
+
   return (
     <div className="min-h-full bg-slate-50/80 p-4 text-slate-900 dark:bg-slate-950 dark:text-white sm:p-6 lg:p-8">
       <div className="mx-auto max-w-[1600px] space-y-7">
-        {/* =====================================
+
+        {/* =====================================================
             Header
-        ===================================== */}
+        ===================================================== */}
 
         <section className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900 sm:p-8">
-          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-violet-500/10 blur-3xl" />
 
-          <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-cyan-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-violet-500/10 blur-3xl" />
+
+          <div className="pointer-events-none absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-cyan-500/10 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
             <div>
               <div className="mb-3 flex items-center gap-2">
+
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900">
-                  <Sparkles
-                    size={17}
-                  />
+                  <Sparkles size={17} />
                 </div>
 
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
                   Creative Skills
                 </span>
+
               </div>
 
               <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
@@ -408,7 +476,7 @@ export default function Skills() {
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Manage Sumaiya&apos;s creative
                 skills, proficiency levels,
-                categories and visibility.
+                categories, icons and visibility.
               </p>
             </div>
 
@@ -420,14 +488,16 @@ export default function Skills() {
               <Plus size={18} />
               Add Skill
             </button>
+
           </div>
         </section>
 
-        {/* =====================================
+        {/* =====================================================
             Stats
-        ===================================== */}
+        ===================================================== */}
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
           <StatCard
             icon={<Layers3 size={19} />}
             label="Total Skills"
@@ -455,15 +525,19 @@ export default function Skills() {
             value={`${stats.average}%`}
             description="Overall proficiency"
           />
+
         </section>
 
-        {/* =====================================
+        {/* =====================================================
             Toolbar
-        ===================================== */}
+        ===================================================== */}
 
         <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-slate-900 sm:p-5">
+
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+
             <div className="relative w-full xl:max-w-md">
+
               <Search
                 size={18}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -477,11 +551,15 @@ export default function Skills() {
                   )
                 }
                 placeholder="Search skills..."
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium outline-none transition focus:border-slate-400 focus:bg-white dark:border-white/10 dark:bg-slate-950 dark:focus:border-white/30 dark:focus:bg-slate-950"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:bg-white dark:border-white/10 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-white/30 dark:focus:bg-slate-950"
               />
+
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
+
+              {/* Category */}
+
               <SelectFilter
                 value={categoryFilter}
                 onChange={setCategoryFilter}
@@ -499,7 +577,9 @@ export default function Skills() {
                 ]}
               />
 
-              <SelectFilter
+              {/* Status */}
+
+              <SelectFilter<StatusFilter>
                 value={statusFilter}
                 onChange={setStatusFilter}
                 options={[
@@ -517,13 +597,14 @@ export default function Skills() {
                   },
                 ]}
               />
+
             </div>
           </div>
         </section>
 
-        {/* =====================================
+        {/* =====================================================
             Content
-        ===================================== */}
+        ===================================================== */}
 
         {isLoading ? (
           <LoadingState />
@@ -537,12 +618,14 @@ export default function Skills() {
               Boolean(search) ||
               categoryFilter !==
                 "all" ||
-              statusFilter !== "all"
+              statusFilter !==
+                "all"
             }
             onCreate={openCreateModal}
           />
         ) : (
           <section className="relative">
+
             {isFetching && (
               <div className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
                 <Loader2
@@ -554,6 +637,7 @@ export default function Skills() {
             )}
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
+
               {filteredSkills.map(
                 (skill) => (
                   <SkillCard
@@ -568,6 +652,7 @@ export default function Skills() {
                       setDeletingSkill(
                         skill
                       );
+
                       setDeleteOpen(
                         true
                       );
@@ -580,14 +665,15 @@ export default function Skills() {
                   />
                 )
               )}
+
             </div>
           </section>
         )}
       </div>
 
-      {/* =====================================
-          Create/Edit Modal
-      ===================================== */}
+      {/* =====================================================
+          Create / Edit Modal
+      ===================================================== */}
 
       {modalOpen && (
         <SkillModal
@@ -605,9 +691,9 @@ export default function Skills() {
         />
       )}
 
-      {/* =====================================
+      {/* =====================================================
           Delete Modal
-      ===================================== */}
+      ===================================================== */}
 
       {deleteOpen &&
         deletingSkill && (
@@ -619,9 +705,7 @@ export default function Skills() {
               setDeleteOpen(false);
               setDeletingSkill(null);
             }}
-            onConfirm={
-              handleDelete
-            }
+            onConfirm={handleDelete}
             loading={deleting}
           />
         )}
@@ -639,14 +723,16 @@ function StatCard({
   value,
   description,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string | number;
   description: string;
 }) {
   return (
     <div className="group rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-slate-900">
+
       <div className="flex items-start justify-between">
+
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-white">
           {icon}
         </div>
@@ -655,9 +741,11 @@ function StatCard({
           size={15}
           className="text-slate-300 transition group-hover:text-slate-500 dark:text-slate-700 dark:group-hover:text-slate-400"
         />
+
       </div>
 
       <div className="mt-5">
+
         <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
           {label}
         </p>
@@ -669,6 +757,7 @@ function StatCard({
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           {description}
         </p>
+
       </div>
     </div>
   );
@@ -699,40 +788,63 @@ function SkillCard({
 
   return (
     <article className="group relative overflow-hidden rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-slate-900">
-      {/* top glow */}
 
       <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-violet-500/10 blur-2xl opacity-0 transition group-hover:opacity-100" />
 
       <div className="relative flex items-start justify-between gap-4">
+
         <div className="flex min-w-0 items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white">
+
+          {/* Icon */}
+
+          <div
+            title={skill.name}
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5"
+          >
             {skill.icon ? (
-              <span className="text-2xl">
-                {skill.icon}
-              </span>
+              <img
+                src={skill.icon}
+                alt={`${skill.name} icon`}
+                className="h-8 w-8 object-contain"
+                loading="lazy"
+              />
             ) : (
-              <Code2 size={22} />
+              <Code2
+                size={22}
+                className="text-slate-400"
+              />
             )}
           </div>
 
-          <div className="min-w-0">
-            <h3 className="truncate text-base font-black">
-              {skill.name}
-            </h3>
+          {/* No skill name shown */}
 
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className="min-w-0">
+
+            <p className="truncate text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
               {skill.category}
             </p>
+
+            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+              {skill.proficiency ?? 0}%
+              proficiency
+            </p>
+
           </div>
+
         </div>
 
         <StatusBadge
           active={skill.isActive}
         />
+
       </div>
 
+      {/* Proficiency */}
+
       <div className="relative mt-6">
+
         <div className="mb-2 flex items-center justify-between">
+
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
             Proficiency
           </span>
@@ -740,19 +852,25 @@ function SkillCard({
           <span className="text-sm font-black">
             {proficiency}%
           </span>
+
         </div>
 
         <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+
           <div
             className="h-full rounded-full bg-slate-900 transition-all duration-700 dark:bg-white"
             style={{
               width: `${proficiency}%`,
             }}
           />
+
         </div>
       </div>
 
+      {/* Information */}
+
       <div className="relative mt-5 grid grid-cols-2 gap-3">
+
         <InfoBox
           label="Experience"
           value={
@@ -767,9 +885,13 @@ function SkillCard({
             skill.order ?? 0
           )}
         />
+
       </div>
 
+      {/* Actions */}
+
       <div className="relative mt-5 flex items-center gap-2 border-t border-slate-100 pt-4 dark:border-white/10">
+
         <button
           type="button"
           onClick={onToggle}
@@ -793,6 +915,7 @@ function SkillCard({
         </button>
 
         <div className="ml-auto flex gap-2">
+
           <button
             type="button"
             onClick={onEdit}
@@ -810,6 +933,7 @@ function SkillCard({
           >
             <Trash2 size={15} />
           </button>
+
         </div>
       </div>
     </article>
@@ -829,6 +953,7 @@ function InfoBox({
 }) {
   return (
     <div className="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-white/5">
+
       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
         {label}
       </p>
@@ -836,12 +961,13 @@ function InfoBox({
       <p className="mt-1 truncate text-xs font-bold text-slate-700 dark:text-slate-200">
         {value}
       </p>
+
     </div>
   );
 }
 
 /* =====================================================
-   Status
+   Status Badge
 ===================================================== */
 
 function StatusBadge({
@@ -857,6 +983,7 @@ function StatusBadge({
           : "bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400"
       }`}
     >
+
       <span
         className={`h-1.5 w-1.5 rounded-full ${
           active
@@ -866,55 +993,67 @@ function StatusBadge({
       />
 
       {active ? "Active" : "Hidden"}
+
     </span>
   );
 }
 
 /* =====================================================
-   Select Filter
+   Generic Select Filter
 ===================================================== */
 
-function SelectFilter({
+function SelectFilter<
+  T extends string = string
+>({
   value,
   onChange,
   options,
 }: {
-  value: string;
-  onChange: (value: any) => void;
+  value: T;
+  onChange: Dispatch<
+    SetStateAction<T>
+  >;
   options: {
     label: string;
-    value: string;
+    value: T;
   }[];
 }) {
   return (
     <div className="relative">
+
       <select
         value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
-        className="h-12 min-w-[160px] appearance-none rounded-2xl border border-slate-200 bg-slate-50 pl-4 pr-10 text-sm font-semibold outline-none transition focus:border-slate-400 dark:border-white/10 dark:bg-slate-950 dark:focus:border-white/30"
+        onChange={(event) => {
+          onChange(
+            event.target.value as T
+          );
+        }}
+        className="h-12 min-w-[160px] appearance-none rounded-2xl border border-slate-200 bg-slate-50 pl-4 pr-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-slate-400 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:focus:border-white/30"
       >
+
         {options.map((option) => (
           <option
             key={option.value}
             value={option.value}
+            className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
           >
             {option.label}
           </option>
         ))}
+
       </select>
 
       <ChevronDown
         size={16}
         className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
       />
+
     </div>
   );
 }
 
 /* =====================================================
-   Modal
+   Skill Modal
 ===================================================== */
 
 function SkillModal({
@@ -928,8 +1067,8 @@ function SkillModal({
 }: {
   editing: Skill | null;
   form: SkillFormState;
-  setForm: React.Dispatch<
-    React.SetStateAction<SkillFormState>
+  setForm: Dispatch<
+    SetStateAction<SkillFormState>
   >;
   onNameChange: (
     value: string
@@ -942,9 +1081,15 @@ function SkillModal({
 }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+
       <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
+
+        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5 dark:border-white/10">
+
           <div>
+
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
               {editing
                 ? "Edit skill"
@@ -956,6 +1101,7 @@ function SkillModal({
                 ? "Update Skill"
                 : "Add New Skill"}
             </h2>
+
           </div>
 
           <button
@@ -966,13 +1112,18 @@ function SkillModal({
           >
             <X size={19} />
           </button>
+
         </div>
+
+        {/* Form */}
 
         <form
           onSubmit={onSubmit}
           className="overflow-y-auto p-6"
         >
+
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
             {/* Name */}
 
             <Field
@@ -1029,23 +1180,40 @@ function SkillModal({
 
             {/* Icon */}
 
-            <Field label="Icon">
-              <input
-                value={form.icon}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    icon: e.target.value,
-                  }))
-                }
-                placeholder="🎨 or icon name"
-                className="input"
-              />
+            <Field label="Skill Icon URL">
+
+              <div className="relative">
+
+                <Image
+                  size={17}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
+                <input
+                  type="url"
+                  value={form.icon}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      icon: e.target.value,
+                    }))
+                  }
+                  placeholder="https://cdn.simpleicons.org/adobephotoshop"
+                  className="input pl-11"
+                />
+
+              </div>
+
+              <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                Add a direct image or SVG icon URL.
+              </p>
+
             </Field>
 
             {/* Proficiency */}
 
             <Field label="Proficiency (%)">
+
               <input
                 type="number"
                 min={0}
@@ -1062,11 +1230,13 @@ function SkillModal({
                 }
                 className="input"
               />
+
             </Field>
 
             {/* Experience */}
 
             <Field label="Experience">
+
               <input
                 value={form.experience}
                 onChange={(e) =>
@@ -1079,11 +1249,13 @@ function SkillModal({
                 placeholder="e.g. 4+ Years"
                 className="input"
               />
+
             </Field>
 
             {/* Order */}
 
             <Field label="Display order">
+
               <input
                 type="number"
                 value={form.order}
@@ -1096,11 +1268,13 @@ function SkillModal({
                 }
                 className="input"
               />
+
             </Field>
 
-            {/* Status */}
+            {/* Visibility */}
 
             <Field label="Visibility">
+
               <button
                 type="button"
                 onClick={() =>
@@ -1116,6 +1290,7 @@ function SkillModal({
                     : "border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
                 }`}
               >
+
                 <span>
                   {form.isActive
                     ? "Visible"
@@ -1129,22 +1304,57 @@ function SkillModal({
                       : "bg-slate-400"
                   }`}
                 />
+
               </button>
+
             </Field>
+
           </div>
 
-          {/* Preview */}
+          {/* =====================================================
+              Icon Preview
+          ===================================================== */}
 
           <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+
+            <div className="mb-3 flex items-center gap-2">
+
+              <Image
+                size={15}
+                className="text-slate-400"
+              />
+
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Icon Preview
+              </p>
+
+            </div>
+
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-xl shadow-sm dark:bg-white/10">
-                {form.icon || (
-                  <Code2 size={20} />
+
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/10">
+
+                {form.icon ? (
+                  <img
+                    src={form.icon}
+                    alt={
+                      form.name ||
+                      "Skill icon"
+                    }
+                    className="h-8 w-8 object-contain"
+                  />
+                ) : (
+                  <Code2
+                    size={22}
+                    className="text-slate-400"
+                  />
                 )}
+
               </div>
 
-              <div>
-                <p className="text-sm font-black">
+              <div className="min-w-0">
+
+                <p className="truncate text-sm font-black">
                   {form.name ||
                     "Skill preview"}
                 </p>
@@ -1157,13 +1367,22 @@ function SkillModal({
                     0}
                   %
                 </p>
+
+                {form.icon && (
+                  <p className="mt-1 max-w-md truncate text-[10px] text-slate-400">
+                    {form.icon}
+                  </p>
+                )}
+
               </div>
+
             </div>
           </div>
 
           {/* Actions */}
 
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
             <button
               type="button"
               onClick={onClose}
@@ -1178,6 +1397,7 @@ function SkillModal({
               disabled={loading}
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
             >
+
               {loading ? (
                 <>
                   <Loader2
@@ -1196,8 +1416,11 @@ function SkillModal({
                     : "Create Skill"}
                 </>
               )}
+
             </button>
+
           </div>
+
         </form>
       </div>
     </div>
@@ -1215,11 +1438,13 @@ function Field({
 }: {
   label: string;
   required?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <label className="block">
+
       <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+
         {label}
 
         {required && (
@@ -1227,9 +1452,11 @@ function Field({
             *
           </span>
         )}
+
       </span>
 
       {children}
+
     </label>
   );
 }
@@ -1251,7 +1478,9 @@ function DeleteModal({
 }) {
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+
       <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-slate-900">
+
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500 dark:bg-red-400/10">
           <Trash2 size={21} />
         </div>
@@ -1261,15 +1490,19 @@ function DeleteModal({
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+
           Are you sure you want to delete{" "}
+
           <span className="font-bold text-slate-900 dark:text-white">
             {skill.name}
           </span>
-          ? This action cannot be
-          undone.
+
+          ? This action cannot be undone.
+
         </p>
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
           <button
             type="button"
             onClick={onClose}
@@ -1285,6 +1518,7 @@ function DeleteModal({
             disabled={loading}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-red-500 px-5 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-60"
           >
+
             {loading ? (
               <Loader2
                 size={16}
@@ -1295,7 +1529,9 @@ function DeleteModal({
             )}
 
             Delete
+
           </button>
+
         </div>
       </div>
     </div>
@@ -1309,6 +1545,7 @@ function DeleteModal({
 function LoadingState() {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
+
       {Array.from({
         length: 6,
       }).map((_, index) => (
@@ -1317,6 +1554,7 @@ function LoadingState() {
           className="h-[280px] animate-pulse rounded-[26px] border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900"
         />
       ))}
+
     </div>
   );
 }
@@ -1332,6 +1570,7 @@ function ErrorState({
 }) {
   return (
     <div className="rounded-[28px] border border-red-100 bg-white p-10 text-center dark:border-red-400/10 dark:bg-slate-900">
+
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500 dark:bg-red-400/10">
         <Activity size={23} />
       </div>
@@ -1352,6 +1591,7 @@ function ErrorState({
       >
         Try again
       </button>
+
     </div>
   );
 }
@@ -1369,20 +1609,25 @@ function EmptyState({
 }) {
   return (
     <div className="rounded-[28px] border border-slate-200 bg-white p-12 text-center dark:border-white/10 dark:bg-slate-900">
+
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400">
         <Layers3 size={25} />
       </div>
 
       <h3 className="mt-5 text-lg font-black">
+
         {hasFilters
           ? "No matching skills"
           : "No skills yet"}
+
       </h3>
 
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
+
         {hasFilters
           ? "Try changing your search or filters."
           : "Start building your creative skills library."}
+
       </p>
 
       {!hasFilters && (
@@ -1395,6 +1640,12 @@ function EmptyState({
           Add Skill
         </button>
       )}
+
     </div>
   );
 }
+
+
+ 
+
+ 
