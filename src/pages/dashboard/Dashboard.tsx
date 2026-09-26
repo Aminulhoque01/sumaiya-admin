@@ -320,7 +320,7 @@ const Dashboard = () => {
 
           <div className="flex shrink-0 flex-wrap gap-3">
             <a
-              href="/admin/projects/create"
+              href="/admin/projects/new"
               className="
                 inline-flex items-center gap-2
                 rounded-xl
@@ -653,7 +653,7 @@ const Dashboard = () => {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <QuickAction
-              href="/admin/projects/create"
+              href="/admin/projects/new"
               icon={Plus}
               title="New project"
               description="Add portfolio work"
